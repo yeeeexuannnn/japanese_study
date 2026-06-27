@@ -15,6 +15,19 @@ export function speakJapanese(text) {
   }
 }
 
+/**
+ * Returns corresponding CSS class for part of speech badges
+ */
+export function getPosClass(posText) {
+  if (!posText) return "pos-phrase";
+  const clean = posText.trim();
+  if (clean.includes("動詞")) return "pos-verb";
+  if (clean.includes("形容詞")) return "pos-adj";
+  if (clean.includes("名詞")) return "pos-noun";
+  if (clean.includes("副詞")) return "pos-adv";
+  return "pos-phrase";
+}
+
 export const UIController = {
   // Screen DOM elements
   screens: {
@@ -176,7 +189,7 @@ export const UIController = {
     
     // Toggle 3D flip card rotation on body click (avoiding bookmark button)
     innerCard.addEventListener("click", (e) => {
-      if (e.target.closest("#study-star-btn")) return;
+      if (e.target.closest("#study-star-btn") || e.target.closest("#study-dict-tts-btn")) return;
       innerCard.classList.toggle("flipped");
     });
 
@@ -193,6 +206,13 @@ export const UIController = {
       e.stopPropagation(); // prevent card flip
       const word = document.getElementById("study-word-front").textContent;
       speakJapanese(word);
+    });
+
+    // Dictionary Form TTS Voice synthesis
+    document.getElementById("study-dict-tts-btn").addEventListener("click", (e) => {
+      e.stopPropagation(); // prevent card flip
+      const dictWord = document.getElementById("study-dict-word").textContent;
+      speakJapanese(dictWord);
     });
 
     // Card navigation controls
@@ -223,6 +243,25 @@ export const UIController = {
     document.getElementById("study-translation-back").textContent = item.translation;
     document.getElementById("study-notes-back").textContent = item.notes || "無註解";
     
+    // Render POS Badge with custom colors
+    const posBadge = document.getElementById("study-pos-back");
+    if (item.pos) {
+      posBadge.textContent = item.pos;
+      posBadge.className = `vocab-pos-badge ${getPosClass(item.pos)}`;
+      posBadge.style.display = "inline-block";
+    } else {
+      posBadge.style.display = "none";
+    }
+
+    // Render Dictionary Form segment
+    const dictWrapper = document.getElementById("study-dict-form-wrapper");
+    if (item.dictionaryForm) {
+      document.getElementById("study-dict-word").textContent = item.dictionaryForm;
+      dictWrapper.style.display = "inline-flex";
+    } else {
+      dictWrapper.style.display = "none";
+    }
+
     // Set active bookmark star state
     const starBtn = document.getElementById("study-star-btn");
     starBtn.classList.toggle("active", isBookmarked);
@@ -244,6 +283,12 @@ export const UIController = {
     // Quiz feedback speaker TTS playback
     document.getElementById("quiz-tts-btn").addEventListener("click", () => {
       if (this.callbacks.onQuizTTSPlay) this.callbacks.onQuizTTSPlay();
+    });
+
+    // Quiz feedback dictionary speaker TTS playback
+    document.getElementById("quiz-dict-tts-btn").addEventListener("click", () => {
+      const dictWord = document.querySelector("#quiz-dict-feedback-wrapper #quiz-dict-word").textContent;
+      speakJapanese(dictWord);
     });
 
     // Hint toggle in spelling
@@ -362,7 +407,7 @@ export const UIController = {
   showQuizFeedback(item, isCorrect) {
     // Flash card border
     const cardEl = document.getElementById("quiz-card-display");
-    cardEl.classList.add(isCorrect ? "correct" : "wrong");
+    cardEl.className = `quiz-card ${isCorrect ? "correct" : "wrong"}`;
 
     // Enable voice play button
     const ttsBtn = document.getElementById("quiz-tts-btn");
@@ -371,6 +416,25 @@ export const UIController = {
     // If correct, play standard TTS sound immediately
     if (isCorrect) {
       speakJapanese(item.word);
+    }
+
+    // Render POS Badge
+    const posBadge = document.getElementById("quiz-pos-feedback");
+    if (item.pos) {
+      posBadge.textContent = item.pos;
+      posBadge.className = `vocab-pos-badge ${getPosClass(item.pos)}`;
+      posBadge.style.display = "inline-block";
+    } else {
+      posBadge.style.display = "none";
+    }
+
+    // Render Dictionary Form
+    const dictWrapper = document.getElementById("quiz-dict-feedback-wrapper");
+    if (item.dictionaryForm) {
+      document.getElementById("quiz-dict-word").textContent = item.dictionaryForm;
+      dictWrapper.style.display = "inline-flex";
+    } else {
+      dictWrapper.style.display = "none";
     }
 
     // Render detailed explanations
@@ -407,7 +471,30 @@ export const UIController = {
 
       const left = document.createElement("div");
       left.className = "mistake-item-left";
-      left.innerHTML = `<h4>${item.word}</h4><p>${item.reading} • ${item.translation}</p>`;
+
+      // Row for Word + POS Badge
+      const wordRow = document.createElement("div");
+      wordRow.className = "mistake-item-left-row";
+      wordRow.innerHTML = `<h4>${item.word}</h4>`;
+      
+      if (item.pos) {
+        const badge = document.createElement("span");
+        badge.className = `vocab-pos-badge ${getPosClass(item.pos)}`;
+        badge.style.fontSize = "10px";
+        badge.style.padding = "2px 8px";
+        badge.textContent = item.pos;
+        wordRow.appendChild(badge);
+      }
+      left.appendChild(wordRow);
+
+      // Details paragraph
+      const details = document.createElement("p");
+      let detailsText = `${item.reading} • ${item.translation}`;
+      if (item.dictionaryForm) {
+        detailsText += ` (原形: ${item.dictionaryForm})`;
+      }
+      details.textContent = detailsText;
+      left.appendChild(details);
       
       const starBtn = document.createElement("button");
       starBtn.className = `btn-star-item ${item.isBookmarked ? "active" : ""}`;

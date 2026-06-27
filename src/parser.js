@@ -49,7 +49,18 @@ export function parseVocabularyMarkdown(markdownText) {
       const word = columns[0];
       const reading = columns[1];
       const translation = columns[2];
-      const notes = columns[3] || "";
+      
+      let pos = "";
+      let dictionaryForm = "";
+      let notes = "";
+
+      if (columns.length >= 6) {
+        pos = columns[3];
+        dictionaryForm = columns[4];
+        notes = columns[5] || "";
+      } else {
+        notes = columns[3] || "";
+      }
       
       if (word && reading && translation) {
         // Generate unique ID based on word and reading (safe for duplicates across lessons)
@@ -61,6 +72,8 @@ export function parseVocabularyMarkdown(markdownText) {
           word,
           reading,
           translation,
+          pos,
+          dictionaryForm,
           notes,
           isBookmarked: false,
           isWrong: false

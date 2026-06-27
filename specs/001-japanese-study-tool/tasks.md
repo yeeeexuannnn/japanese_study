@@ -185,3 +185,20 @@ Task: "Implement main application router and layout state toggles in src/ui.js"
 3. Complete User Story 1 (Japanese-to-Chinese Quiz)
 4. Validate PWA standalone layout using Chrome Mobile DevTools
 5. Configure GitHub Pages (T033) and verify PWA on your mobile devices (T035)
+
+---
+
+## Phase 12: Feature Add - 詞性與動詞原形 (POS & Dictionary Form)
+
+**Goal**: Add dynamic color-coded Part of Speech badges and verb dictionary form pronunciation to flashcards, quiz feedbacks, and summary logs
+
+**Independent Test**: Flip cards to see colorful tags like "1類動詞", "な形容詞" and tap the pronunciation icon next to the dictionary form.
+
+### Implementation for Phase 12
+- [ ] T036 Create database transformation script to update specs/vocabulary_list.md with two new columns (詞性 and 原形)
+- [ ] T037 Update data-model.md and src/parser.js to extract pos and dictionaryForm attributes
+- [ ] T038 [P] Add HTML nodes for POS badges and dictionary form voice buttons in index.html
+- [ ] T039 [P] Style part of speech badges with colorful thematic categories in index.css
+- [ ] T040 Connect POS rendering and dictionary form audio playback in src/ui.js and app.js
+- [ ] T041 [P] Update unit assertions in tests/parser.test.js to support the new six-column format
+- [ ] T042 Verify all unit tests pass using npm test and validate layout on local development server

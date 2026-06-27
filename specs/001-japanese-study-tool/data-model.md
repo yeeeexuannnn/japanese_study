@@ -15,6 +15,8 @@ interface VocabularyItem {
   word: string;          // 日文單字漢字或假名 (例如 "遊びます")
   reading: string;       // 平假名/片假名讀音 (例如 "あそびます")
   translation: string;   // 中文翻譯 (例如 "玩、遊玩")
+  pos: string;           // 詞性標籤 (例如 "1類動詞"、"な形容詞"、"名詞")
+  dictionaryForm: string; // 動詞原形/辭書形 (例如 "遊ぶ"，非動詞則為空字串)
   notes: string;         // 註解或搭配詞 (例如 "[公園を~] 在公園散步")
   isBookmarked: boolean; // 是否已收藏（動態關聯自 LocalStorage）
   isWrong: boolean;      // 是否在錯題本中（動態關聯自 LocalStorage）

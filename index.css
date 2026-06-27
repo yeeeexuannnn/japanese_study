@@ -799,3 +799,90 @@ h1 {
 .speaker-btn:hover {
   transform: scale(1.1);
 }
+
+/* Part of Speech & Dictionary Form Badge Styling */
+.pos-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vocab-pos-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Color Coding Badges */
+.vocab-pos-badge.pos-verb {
+  border: 1px solid rgba(137, 180, 250, 0.4);
+  background: rgba(137, 180, 250, 0.12);
+  color: var(--accent-blue);
+  box-shadow: 0 0 10px rgba(137, 180, 250, 0.1);
+}
+
+.vocab-pos-badge.pos-adj {
+  border: 1px solid rgba(166, 227, 161, 0.4);
+  background: rgba(166, 227, 161, 0.12);
+  color: var(--accent-green);
+  box-shadow: 0 0 10px rgba(166, 227, 161, 0.1);
+}
+
+.vocab-pos-badge.pos-noun {
+  border: 1px solid rgba(203, 166, 247, 0.4);
+  background: rgba(203, 166, 247, 0.12);
+  color: var(--accent-purple);
+  box-shadow: 0 0 10px rgba(203, 166, 247, 0.1);
+}
+
+.vocab-pos-badge.pos-adv {
+  border: 1px solid rgba(249, 226, 175, 0.4);
+  background: rgba(249, 226, 175, 0.12);
+  color: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(249, 226, 175, 0.1);
+}
+
+.vocab-pos-badge.pos-phrase {
+  border: 1px solid rgba(165, 173, 203, 0.4);
+  background: rgba(165, 173, 203, 0.12);
+  color: var(--text-sub);
+}
+
+.dictionary-form-wrapper {
+  font-size: 13px;
+  color: var(--text-sub);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-dict-sound {
+  transition: transform 0.2s;
+}
+
+.btn-dict-sound:hover {
+  transform: scale(1.2);
+}
+
+/* Adjust Summary Mistake item layout for badges */
+.mistake-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mistake-item-left-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
