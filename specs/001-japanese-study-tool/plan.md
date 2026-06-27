@@ -1,91 +1,64 @@
-# Implementation Plan: 日語學習工具 (Japanese Learning Tool)
+# Implementation Plan: 單字庫新增詞性與原形 (分開獨立欄位設計)
 
 **Branch**: `001-japanese-study-tool` | **Date**: 2026-06-28 | **Spec**: [spec.md](file:///c:/sourceTree/japanese_study/specs/001-japanese-study-tool/spec.md)
 
-**Input**: Feature specification from `/specs/001-japanese-study-tool/spec.md`
+您提出了非常專業的架構建議！將「詞性」與「原形」在單字庫表格中**開闢為兩個獨立的欄位**，確實能大幅簡化程式解析的複雜度，並且讓語音播放及未來的擴充（例如原形測驗）更加穩定且易於維護。
 
-## Summary
+本計畫已更新為雙獨立欄位設計。
 
-本項目旨在開發一個可在行動端（iOS 平板與 Android 手機）完美運行的單機離線日語學習工具。技術架構上選擇 **漸進式網頁應用程式 (PWA)** 方案，不依賴任何外部後端或伺服器，利用瀏覽器 native 的 `localStorage` 進行收藏星星與錯題紀錄的持久化儲存。
+## Proposed Changes
 
----
+### 1. 單字庫資料庫更新 (雙欄位設計)
+*   **修改檔案：** [vocabulary_list.md](file:///c:/sourceTree/japanese_study/specs/vocabulary_list.md)
+*   **變更細節：** 
+    *   在表格中新增兩個獨立的欄位：「詞性」與「原形」。
+    *   **「詞性」欄位值：** `名詞`、`な形容詞`、`い形容詞`、`1類動詞`、`2類動詞`、`3類動詞`、`副詞`、`短句`。
+    *   **「原形」欄位值：** 動詞填入其辭書形（如 `遊ぶ`、`忘れる`、`散步する`），非動詞欄位則留空。
+    *   對現有的 382 個單字進行智能規則分類與人工校對。
 
-## Technical Context
+### 2. 資料實體模型擴充
+*   **修改檔案：** [data-model.md](file:///c:/sourceTree/japanese_study/specs/001-japanese-study-tool/data-model.md)
+*   **變更細節：** 在 `VocabularyItem` 介面中新增兩個屬性：
+    ```typescript
+    interface VocabularyItem {
+      // ... 既有欄位
+      pos: string;            // 詞性標籤 (如 "1類動詞")
+      dictionaryForm: string; // 動詞原形 (如 "遊ぶ"，非動詞為空字串)
+    }
+    ```
 
-**Deployment**: GitHub Pages (將網頁靜態託管於 GitHub，無伺服器費用，並支援 HTTPS 與自訂網域。支援行動端 PWA 全螢幕安裝與本機 LocalStorage 資料隔離持久化。)
+### 3. 單字庫解析器 (Parser) 更新
+*   **修改檔案：** [src/parser.js](file:///c:/sourceTree/japanese_study/src/parser.js)
+*   **變更細節：** 
+    *   修改 Markdown 解析邏輯，支持六欄位表格，讀取並提取「詞性」與「原形」資料並注入 `pos` 與 `dictionaryForm` 屬性。
 
-**Language/Version**: HTML5, CSS3 (Vanilla CSS), ES6+ JavaScript (Vanilla JS)
+### 4. 網頁版 UI 與樣式更新
+*   **修改檔案：** 
+    *   [index.html](file:///c:/sourceTree/japanese_study/index.html) — 
+        *   在學習單字卡背面 (`card-back`) 新增用以展示詞性 Badge 與原形區域的元件。
+        *   在測驗回饋面板 (`quiz-feedback-panel`) 調整佈局以動態顯示詞性與原形。
+    *   [index.css](file:///c:/sourceTree/japanese_study/index.css) — 
+        *   新增 `.vocab-pos-badge` 樣式，並依詞性進行彩色標籤設定。
+        *   設計原形區塊樣式（如 `原形: 遊ぶ 🔊`）及發音按鈕。
+    *   [src/ui.js](file:///c:/sourceTree/japanese_study/src/ui.js) — 
+        *   更新 `renderFlashcard`，若 `item.dictionaryForm` 存在則渲染原形區塊並綁定獨立發音事件，無須再以正則拆分字串。
+        *   更新 `showQuizFeedback` 與 `renderSummary` 函數以渲染獨立的詞性 Badge 與原形。
 
-**Primary Dependencies**: None (為了輕量化與 100% 離線可用，完全不引用第三方 Framework / JS 庫)
-
-**Storage**: 瀏覽器 Native `localStorage`（用於儲存書籤清單與錯題清單）
-
-**Testing**: 於 `tests/` 目錄中編寫簡單的 JS 單元測試，驗證單字庫 parser 及選擇題去重邏輯
-
-**Target Platform**: iOS 15+ (Safari), Android (Chrome) 行動端瀏覽器，支援 PWA「加入主畫面」以全螢幕 standalone 模式啟動
-
-**Project Type**: PWA 靜態網頁應用程式 (web-app / PWA)
-
-**Performance Goals**: 
-- 網頁首開載入時間 < 300ms（利用 Service Worker 快取）
-- 卡片翻轉動畫、介面切換流暢度達 60 fps 
-
-**Constraints**: 
-- 完全離線可用（透過 Service Worker 快取單字庫 [vocabulary_list.md](file:///c:/sourceTree/japanese_study/specs/vocabulary_list.md)）
-- Mobile-First 響應式排版，適應 360px 至 1024px 各種手機與平板螢幕
-
----
-
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-- **Library-First**: 將單字解析 (Parser)、測驗狀態機 (QuizEngine)、本機儲存控制器 (StorageController) 分模組封裝成獨立的 JS 模組，模組間職責分離，利於獨立測試。
-- **CLI Interface**: 由於本案是純前端瀏覽器應用程式（PWA），不具備命令列（CLI）運作環境，此項不適用（N/A）。
-- **Test-First**: 在實作 UI 之前，優先編寫單字庫解析模組與隨機選項生成邏輯的單元測試，確保資料邏輯 100% 正確再開發畫面。
-
----
-
-## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-japanese-study-tool/
-├── spec.md              # 功能規格書 (Specify 階段產出)
-├── plan.md              # 本實作計畫書 (Plan 階段產出)
-├── research.md          # 平台評估報告 (Phase 0 產出)
-├── data-model.md        # 資料結構與狀態設計 (Phase 1 產出)
-├── quickstart.md        # 本地啟動與驗證指南 (Phase 1 產出)
-└── checklists/
-    └── requirements.md  # 規格品質驗證清單
-```
-
-### Source Code (repository root)
-
-```text
-# 採用 Option 1: Single project (DEFAULT) 結構
-index.html               # 應用程式主 HTML 結構與入口
-index.css                # 核心設計系統與 CSS 樣式 (包含 3D 卡片動畫)
-app.js                   # 應用程式前端核心邏輯與模組初始化
-manifest.json            # PWA 設定檔，定義 standalone 與圖示
-service-worker.js        # 離線快取控制腳本\n.github/workflows/      # GitHub Actions 自動部署工作流\n└── deploy.yml          # 自動發布至 GitHub Pages
-
-src/
-├── parser.js            # 單字庫 markdown 解析模組
-├── storage.js           # localStorage 控制模組
-├── quiz.js              # 測驗邏輯與選項生成模組
-└── ui.js                # UI 渲染與事件綁定模組
-
-tests/
-├── parser.test.js       # 測試單字解析與欄位對齊
-└── quiz.test.js         # 測試隨機選項生成與去重邏輯
-```
-
-**Structure Decision**: 由於此專案為全前端靜態 PWA 專案，採用 Option 1 (Single Project) 最為直覺。前端核心控制代碼以模組化方式置於 `src/` 中，入口檔案置於根目錄，方便 Python 本地 HTTP 伺服器一鍵載入。
+### 5. 測試套件更新
+*   **修改檔案：** [tests/parser.test.js](file:///c:/sourceTree/japanese_study/tests/parser.test.js)
+*   **變更細節：** 修改單元測試的 mock 表格為六欄位，並斷言 `pos` 與 `dictionaryForm` 解析正確。
 
 ---
 
-## Complexity Tracking
+## Verification Plan
 
-*此項目無違反 Constitution core principles 之複雜度設計，故本表無衝突條目。*
+### Automated Tests
+*   執行本地單元測試，驗證雙欄位是否被正確解析：
+    ```bash
+    npm test
+    ```
+
+### Manual Verification
+1.  在本機啟動 `start-server.bat`。
+2.  進入「單字卡學習模式」，確認翻卡背面顯示彩色詞性 Badge，若為動詞，點選原形旁邊的 🔊 可播放辭書形原音。
+3.  進入測驗模式，答題後的回饋面版與結算面板應呈現獨立的彩色詞性 Badge。
