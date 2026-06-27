@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>大家的日本語 2 單字學習工具</title>
+  
+  <!-- PWA Manifest & Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#cba6f7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="日語學習">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div id="app-container">
+    
+    <!-- Top Stat Header (Visible across app) -->
+    <header>
+      <div class="logo">日本語<span>學習卡</span></div>
+      <div class="stats-summary">
+        <div class="stat-badge" id="header-bookmark-badge">
+          <span>⭐</span> <span id="header-bookmark-count">0</span>
+        </div>
+        <div class="stat-badge" id="header-wrong-badge">
+          <span>❌</span> <span id="header-wrong-count">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SCREEN 1: Scope & Mode Selection Screen -->
+    <main id="screen-setup" class="screen active">
+      <h1>選擇練習範圍</h1>
+      <p class="description">請選擇您想要練習的課別範圍與學習模式。選擇書籤或錯題本將僅針對特定單字進行複習。</p>
+
+      <!-- Range Selector Section -->
+      <section class="card-section">
+        <div class="section-title">
+          <span>課別範圍</span>
+          <div class="toggle-actions">
+            <button class="btn-small" id="btn-select-all">全選</button>
+            <button class="btn-small" id="btn-select-none">清除</button>
+          </div>
+        </div>
+        
+        <div class="lesson-grid" id="lesson-chips-container">
+          <!-- Lessons generated dynamically by JS (第 13 課 to 第 25 課) -->
+        </div>
+      </section>
+
+      <!-- Advanced Filter Scope (Bookmark & Mistake lists) -->
+      <section class="card-section">
+        <div class="section-title">特別篩選範圍</div>
+        <div class="action-list">
+          <div class="action-row" id="scope-row-bookmark">
+            <div class="action-left bookmark">
+              <span>⭐</span>
+              <span>書籤 (標星單字)</span>
+            </div>
+            <div class="action-count" id="scope-count-bookmark">0</div>
+          </div>
+          
+          <div class="action-row" id="scope-row-wrong">
+            <div class="action-left wrong">
+              <span>❌</span>
+              <span>錯題本 (常錯單字)</span>
+            </div>
+            <div class="action-count" id="scope-count-wrong">0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Learning Mode Section -->
+      <section class="card-section">
+        <div class="section-title">學習與測驗模式</div>
+        <div class="mode-grid">
+          
+          <div class="mode-card selected" data-mode="study">
+            <div class="mode-icon">📖</div>
+            <div class="mode-info">
+              <h3>單字卡翻牌瀏覽</h3>
+              <p>卡片 3D 翻轉，顯示假名讀音、翻譯與註解，適合背誦預習</p>
+            </div>
+          </div>
+          
+          <div class="mode-card" data-mode="jp_to_zh">
+            <div class="mode-icon">🎌</div>
+            <div class="mode-info">
+              <h3>看日文，選中文翻譯</h3>
+              <p>顯示日文單字，從四個不重複的中文選項中挑選正確答案</p>
+            </div>
+          </div>
+          
+          <div class="mode-card" data-mode="zh_to_jp">
+            <div class="mode-icon">🇨🇳</div>
+            <div class="mode-info">
+              <h3>看中文翻譯，選日文單字</h3>
+              <p>顯示中文翻譯，從四個不重複的日文單字中挑選正確答案</p>
+            </div>
+          </div>
+          
+          <div class="mode-card" data-mode="spelling">
+            <div class="mode-icon">✍️</div>
+            <div class="mode-info">
+              <h3>看單字，輸入平假名讀音</h3>
+              <p>手動輸入單字的假名發音，支援首字提示與字數長度引導</p>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+      <button class="btn-primary" id="btn-start-action">開始學習 ⮕</button>
+    </main>
+
+    <!-- SCREEN 2: Flashcard Study Screen -->
+    <section id="screen-study" class="screen">
+      <div class="panel-nav">
+        <button class="btn-back btn-go-home">⬅ 退出</button>
+        <span class="progress-text" id="study-progress-indicator">0 / 0</span>
+      </div>
+
+      <!-- 3D Card Scene -->
+      <div class="flashcard-scene">
+        <div class="flashcard" id="flashcard-inner">
+          <button class="btn-bookmark" id="study-star-btn">★</button>
+          
+          <!-- Card Front -->
+          <div class="card-face card-front">
+            <div class="vocab-word" id="study-word-front">--</div>
+            <div class="vocab-lesson-tag" id="study-lesson-front">--</div>
+            <div class="flip-hint"><span>🔄</span> 點擊卡片翻面</div>
+          </div>
+          
+          <!-- Card Back -->
+          <div class="card-face card-back">
+            <div class="vocab-reading" id="study-reading-back">--</div>
+            <div class="vocab-translation" id="study-translation-back">--</div>
+            <div class="vocab-notes" id="study-notes-back">--</div>
+            <button class="speaker-btn" id="study-tts-btn">🔊</button>
+            <div class="flip-hint"><span>🔄</span> 點擊卡片翻面</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-controls">
+        <button class="btn-card-ctrl" id="btn-study-prev">◀ 上一個</button>
+        <button class="btn-card-ctrl" id="btn-study-next">下一個 ▶</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Quiz Screen (Multiple Choice & Input modes) -->
+    <section id="screen-quiz" class="screen">
+      <div class="panel-nav">
+        <button class="btn-back btn-go-home">⬅ 結束</button>
+        <span class="progress-text" id="quiz-progress-indicator">0 / 0</span>
+      </div>
+
+      <!-- Quiz Card Display Area -->
+      <div class="quiz-card" id="quiz-card-display">
+        <button class="btn-bookmark" id="quiz-star-btn">★</button>
+        <div class="quiz-prompt" id="quiz-mode-prompt">請選擇正確選項</div>
+        <div class="vocab-word" id="quiz-question-word">--</div>
+        <!-- TTS speaker plays only after answering or in typing mode -->
+        <button class="speaker-btn" id="quiz-tts-btn" style="display:none">🔊</button>
+      </div>
+
+      <!-- Choices Option List (For MCQ modes) -->
+      <div class="options-list" id="quiz-choices-container">
+        <!-- Generates 4 option buttons dynamically -->
+      </div>
+
+      <!-- Typing input area (For spelling mode) -->
+      <div class="input-section" id="quiz-input-container" style="display:none">
+        <div class="textbox-container" id="spelling-textbox-wrapper">
+          <input type="text" class="textbox" id="spelling-input" placeholder="請輸入平假名讀音..." autocomplete="off">
+        </div>
+        <div class="hint-box" id="spelling-hint-box" style="display:none">首字為：--，共 -- 個字</div>
+        
+        <div class="card-controls">
+          <button class="btn-card-ctrl" id="btn-spelling-hint">💡 提示</button>
+          <button class="btn-card-ctrl" id="btn-spelling-submit" style="background:var(--accent-blue);color:var(--bg-base)">送出檢查</button>
+        </div>
+      </div>
+
+      <!-- Feedback box after answering -->
+      <div class="quiz-feedback-box" id="quiz-feedback-panel" style="display:none">
+        <div class="quiz-feedback-answer" id="feedback-answer-reading">讀音：--</div>
+        <div class="vocab-translation" id="feedback-answer-trans">中文：--</div>
+        <div class="vocab-notes" id="feedback-answer-notes">註解：--</div>
+        
+        <button class="btn-primary" id="btn-quiz-next" style="width:100%;margin-top:16px">下一題 ⮕</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz Session Summary Screen -->
+    <section id="screen-summary" class="screen">
+      <h1>測驗結算</h1>
+      <p class="description">以下是您本次測驗的表現統計。您可以查看答錯的字詞並將它們直接加入星星書籤收藏。</p>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="description">答對率</div>
+          <div class="summary-val rate" id="summary-accuracy">0%</div>
+        </div>
+        <div class="summary-card">
+          <div class="description">答對 / 總題數</div>
+          <div class="summary-val" id="summary-score">0 / 0</div>
+        </div>
+      </div>
+
+      <!-- Mistook words list section -->
+      <section class="card-section" style="flex:1;display:flex;flex-direction:column">
+        <div class="section-title">本次測驗答錯的單字</div>
+        <div class="mistake-list-container" id="summary-mistakes-list">
+          <!-- Dynamically populated mistake items -->
+        </div>
+      </section>
+
+      <button class="btn-primary btn-go-home" style="background:linear-gradient(135deg, var(--accent-purple), var(--accent-pink))">返回主頁 🏠</button>
+    </section>
+
+  </div>
+
+  <!-- Frontend application script modules -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

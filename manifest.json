@@ -1,0 +1,18 @@
+{
+  "name": "大家的日本語 2 單字學習工具",
+  "short_name": "日語學習",
+  "description": "大家的日本語 2 課別單字、書籤及錯題本學習與測驗工具",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1e1e2e",
+  "theme_color": "#cba6f7",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ]
+}

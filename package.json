@@ -1,0 +1,9 @@
+{
+  "name": "japanese-study-tool",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "大家的日本語 2 單字學習與測驗 PWA 工具",
+  "scripts": {
+    "test": "node tests/run_tests_node.js"
+  }
+}

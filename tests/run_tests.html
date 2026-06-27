@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>JS Unit Tests Runner</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #0f0f1b;
+      color: #cad3f5;
+      padding: 30px;
+      line-height: 1.5;
+    }
+    h1 {
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+    .suite {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #cba6f7;
+      font-size: 16px;
+    }
+    .pass {
+      color: #a6e3a1;
+    }
+    .fail {
+      color: #f38ba8;
+      background: rgba(243, 139, 168, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .summary {
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 18px;
+      border-top: 2px solid rgba(255, 255, 255, 0.1);
+      padding-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>日語學習工具 - 網頁單元測試執行器</h1>
+  <div id="results"></div>
+
+  <script type="module">
+    import { testParserSuite } from "./parser.test.js";
+    import { testQuizSuite } from "./quiz.test.js";
+
+    // Setup micro test framework
+    const resultsContainer = document.getElementById("results");
+    
+    let totalTests = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+
+    const assert = {
+      suite(name) {
+        const div = document.createElement("div");
+        div.className = "suite";
+        div.textContent = `\n--- Suite: ${name} ---`;
+        resultsContainer.appendChild(div);
+      },
+      
+      test(desc, fn) {
+        totalTests++;
+        try {
+          fn();
+          passedTests++;
+          const p = document.createElement("div");
+          p.className = "pass";
+          p.textContent = `  ✓ [PASS] ${desc}`;
+          resultsContainer.appendChild(p);
+        } catch (error) {
+          failedTests++;
+          const p = document.createElement("div");
+          p.className = "fail";
+          p.textContent = `  ✗ [FAIL] ${desc}\n     -> Error: ${error.message}`;
+          resultsContainer.appendChild(p);
+          console.error(error);
+        }
+      },
+
+      equal(actual, expected, message) {
+        if (actual !== expected) {
+          throw new Error(`${message || "Assertion failed"}: expected [${expected}] but got [${actual}]`);
+        }
+      },
+
+      ok(value, message) {
+        if (!value) {
+          throw new Error(`${message || "Assertion failed"}: expected truthy value but got [${value}]`);
+        }
+      }
+    };
+
+    // Run test suites
+    try {
+      testParserSuite(assert);
+      testQuizSuite(assert);
+      
+      // Print summary
+      const summary = document.createElement("div");
+      summary.className = "summary";
+      summary.innerHTML = `測試執行完畢。<br>總共執行: ${totalTests} 題<br><span class="pass">成功: ${passedTests} 題</span><br><span class="fail">失敗: ${failedTests} 題</span>`;
+      resultsContainer.appendChild(summary);
+    } catch (e) {
+      const errDiv = document.createElement("div");
+      errDiv.className = "fail";
+      errDiv.textContent = `測試框架啟動失敗: ${e.message}`;
+      resultsContainer.appendChild(errDiv);
+    }
+  </script>
+</body>
+</html>
