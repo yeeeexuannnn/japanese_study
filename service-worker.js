@@ -1,4 +1,4 @@
-const CACHE_NAME = "jp-study-cache-v1";
+const CACHE_NAME = "jp-study-cache-v1.1.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -58,4 +58,11 @@ self.addEventListener("fetch", (e) => {
       return fetch(e.request);
     })
   );
+});
+
+// Listener to force update when skipWaiting is requested
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });

@@ -20,7 +20,10 @@
     
     <!-- Top Stat Header (Visible across app) -->
     <header>
-      <div class="logo">日本語<span>學習卡</span></div>
+      <div class="logo" style="display: flex; align-items: center; gap: 8px;">
+        日本語<span>學習卡</span>
+        <span class="app-version-badge" id="app-version-label">v.1.1.0</span>
+      </div>
       <div class="stats-summary">
         <div class="stat-badge" id="header-bookmark-badge">
           <span>⭐</span> <span id="header-bookmark-count">0</span>
@@ -239,6 +242,12 @@
       <button class="btn-primary btn-go-home" style="background:linear-gradient(135deg, var(--accent-purple), var(--accent-pink))">返回主頁 🏠</button>
     </section>
 
+  </div>
+
+  <!-- PWA Service Worker Update Alert Toast -->
+  <div id="update-toast" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(30, 30, 46, 0.95); border:1px solid var(--accent-purple); color:#fff; padding:12px 20px; border-radius:20px; font-weight:700; box-shadow:0 12px 40px rgba(0,0,0,0.5); z-index:9999; align-items:center; gap:12px; font-size:14px; backdrop-filter:blur(10px); animation:slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+    <span>✨ 偵測到新版本與單字！</span>
+    <button id="btn-update-refresh" style="background:var(--accent-purple); border:none; color:var(--bg-base); font-weight:700; padding:6px 14px; border-radius:12px; cursor:pointer; font-size:12px; transition:transform 0.2s;">立即更新</button>
   </div>
 
   <!-- Frontend application script modules -->

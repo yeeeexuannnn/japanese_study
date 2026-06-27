@@ -19,6 +19,9 @@ const State = {
   }
 };
 
+// App Version Constant
+const APP_VERSION = "v1.1.0";
+
 /**
  * Register Service Worker for PWA support (Offline Capability)
  */
@@ -26,8 +29,54 @@ function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("./service-worker.js")
-        .then(reg => console.log("[PWA] Service Worker registered with scope:", reg.scope))
+        .then(reg => {
+          console.log("[PWA] Service Worker registered with scope:", reg.scope);
+          
+          // Check for service worker updates
+          reg.addEventListener("updatefound", () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                // New service worker found and waiting to active!
+                showUpdateToast(reg);
+              }
+            });
+          });
+          
+          // Also cover cases where a waiting service worker is already sitting there
+          if (reg.waiting) {
+            showUpdateToast(reg);
+          }
+        })
         .catch(err => console.error("[PWA] Service Worker registration failed:", err));
+    });
+
+    // Automatically reload the page when the service worker changes (skipWaiting completes)
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!refreshing) {
+        window.location.reload();
+        refreshing = true;
+      }
+    });
+  }
+}
+
+/**
+ * Display the update toast notification
+ */
+function showUpdateToast(registration) {
+  const toast = document.getElementById("update-toast");
+  const refreshBtn = document.getElementById("btn-update-refresh");
+  
+  if (toast && refreshBtn) {
+    toast.style.display = "flex";
+    
+    refreshBtn.addEventListener("click", () => {
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      }
+      toast.style.display = "none";
     });
   }
 }
@@ -50,6 +99,9 @@ function refreshWordsState() {
 
 // Bootstrap Application
 async function initApp() {
+  // Set App Version in DOM
+  document.getElementById("app-version-label").textContent = APP_VERSION;
+
   registerServiceWorker();
   
   // Load database

@@ -80,6 +80,20 @@ header {
   opacity: 0.8;
 }
 
+.app-version-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent-purple);
+  -webkit-text-fill-color: var(--accent-purple); /* Override gradient fill */
+  background: rgba(203, 166, 247, 0.12);
+  border: 1px solid rgba(203, 166, 247, 0.3);
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .stats-summary {
   display: flex;
   gap: 12px;
@@ -885,4 +899,25 @@ h1 {
   align-items: center;
   gap: 8px;
 }
+
+/* PWA Update Toast slideUp animation & button styling */
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 40px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+#btn-update-refresh:hover {
+  transform: scale(1.05);
+}
+
+#btn-update-refresh:active {
+  transform: scale(0.95);
+}
+
 
