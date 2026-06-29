@@ -351,21 +351,29 @@ export const UIController = {
     document.getElementById("spelling-hint-box").style.display = "none";
     document.getElementById("spelling-textbox-wrapper").className = "textbox-container";
 
+    const qWord = document.getElementById("quiz-question-word");
+    const choicesContainer = document.getElementById("quiz-choices-container");
+
     // Standard MCQ or Input Modes rendering
     if (mode === "jp_to_zh") {
       document.getElementById("quiz-mode-prompt").textContent = "看單字，選中文翻譯";
-      document.getElementById("quiz-question-word").textContent = item.word;
-      document.getElementById("quiz-choices-container").style.display = "flex";
+      qWord.textContent = item.word;
+      qWord.setAttribute("lang", "ja");
+      choicesContainer.style.display = "flex";
+      choicesContainer.removeAttribute("lang");
       document.getElementById("quiz-input-container").style.display = "none";
     } else if (mode === "zh_to_jp") {
       document.getElementById("quiz-mode-prompt").textContent = "看中文翻譯，選日文單字";
-      document.getElementById("quiz-question-word").textContent = item.translation;
-      document.getElementById("quiz-choices-container").style.display = "flex";
+      qWord.textContent = item.translation;
+      qWord.removeAttribute("lang");
+      choicesContainer.style.display = "flex";
+      choicesContainer.setAttribute("lang", "ja");
       document.getElementById("quiz-input-container").style.display = "none";
     } else if (mode === "spelling") {
       document.getElementById("quiz-mode-prompt").textContent = "看單字，輸入平假名讀音";
-      document.getElementById("quiz-question-word").textContent = item.word;
-      document.getElementById("quiz-choices-container").style.display = "none";
+      qWord.textContent = item.word;
+      qWord.setAttribute("lang", "ja");
+      choicesContainer.style.display = "none";
       document.getElementById("quiz-input-container").style.display = "flex";
       document.getElementById("spelling-input").disabled = false;
       document.getElementById("spelling-input").focus();
@@ -431,7 +439,9 @@ export const UIController = {
     // Render Dictionary Form
     const dictWrapper = document.getElementById("quiz-dict-feedback-wrapper");
     if (item.dictionaryForm) {
-      document.getElementById("quiz-dict-word").textContent = item.dictionaryForm;
+      const qdWord = document.getElementById("quiz-dict-word");
+      qdWord.textContent = item.dictionaryForm;
+      qdWord.setAttribute("lang", "ja");
       dictWrapper.style.display = "inline-flex";
     } else {
       dictWrapper.style.display = "none";
@@ -468,6 +478,7 @@ export const UIController = {
     sessionStats.mistakes.forEach(item => {
       const row = document.createElement("div");
       row.className = "mistake-item";
+      row.setAttribute("lang", "ja");
 
       const left = document.createElement("div");
       left.className = "mistake-item-left";

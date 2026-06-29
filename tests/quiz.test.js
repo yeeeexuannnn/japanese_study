@@ -39,11 +39,17 @@ export function testQuizSuite(assert) {
     assert.ok(verifyReadingInput("  あそびます  ", "あそびます"), "Whitespace is ignored");
     assert.ok(verifyReadingInput("あそび　ます", "あそびます"), "Japanese full-width space is ignored");
     assert.ok(verifyReadingInput("ぷーる", "プール"), "Katakana matching is supported");
+    assert.ok(verifyReadingInput("おしょうがつ", "[お]しょうがつ"), "Match with optional prefix is valid");
+    assert.ok(verifyReadingInput("しょうがつ", "[お]しょうがつ"), "Match without optional prefix is valid");
   });
 
   assert.test("generateReadingHint should return first char and length", () => {
     const hint = generateReadingHint("あそびます");
     assert.equal(hint.firstChar, "あ", "First character should be あ");
     assert.equal(hint.length, 5, "Length should be 5");
+
+    const bracketHint = generateReadingHint("[お]しょうがつ");
+    assert.equal(bracketHint.firstChar, "お", "First character of [お]しょうがつ should be お");
+    assert.equal(bracketHint.length, 6, "Length of [お]しょうがつ should be 6");
   });
 }

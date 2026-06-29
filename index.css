@@ -24,6 +24,10 @@
   --font-main: 'Outfit', 'Noto Sans TC', 'Noto Sans JP', sans-serif;
 }
 
+[lang="ja"] {
+  font-family: 'Outfit', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif !important;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

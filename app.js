@@ -20,7 +20,7 @@ const State = {
 };
 
 // App Version Constant
-const APP_VERSION = "v1.1.1";
+const APP_VERSION = "v1.1.2";
 
 /**
  * Register Service Worker for PWA support (Offline Capability)

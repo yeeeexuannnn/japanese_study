@@ -99,7 +99,15 @@ export function verifyReadingInput(userInput, correctReading) {
     });
   };
 
-  return toHiragana(cleanInput) === toHiragana(cleanCorrect);
+  const inputHira = toHiragana(cleanInput);
+  const correctHira = toHiragana(cleanCorrect);
+
+  // Allow matching with optional prefix (e.g. [お]しょうがつ -> おしょうがつ)
+  const formWithPrefix = correctHira.replace(/\[|\]/g, "");
+  // Allow matching without optional prefix (e.g. [お]しょうがつ -> しょうがつ)
+  const formWithoutPrefix = correctHira.replace(/\[.*?\]/g, "");
+
+  return inputHira === formWithPrefix || inputHira === formWithoutPrefix;
 }
 
 /**
@@ -107,7 +115,8 @@ export function verifyReadingInput(userInput, correctReading) {
  * @param {string} correctReading - Flat reading (e.g. "あそびます")
  */
 export function generateReadingHint(correctReading) {
-  const clean = correctReading.replace(/[\s　]+/g, "");
+  // Strip brackets to get the standard full reading hint
+  const clean = correctReading.replace(/[\s　]+/g, "").replace(/\[|\]/g, "");
   if (clean.length === 0) return { firstChar: "", length: 0 };
   return {
     firstChar: clean.charAt(0),

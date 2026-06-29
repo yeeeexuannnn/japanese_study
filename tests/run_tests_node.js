@@ -1,5 +1,8 @@
 import { testParserSuite } from "./parser.test.js";
 import { testQuizSuite } from "./quiz.test.js";
+import { validateVocabularyFile } from "../.agents/skills/vocabulary_validator/scripts/validate_vocab.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 let totalTests = 0;
 let passedTests = 0;
@@ -39,6 +42,17 @@ const assert = {
 console.log("Running Japanese Study Tool Node Unit Tests...");
 testParserSuite(assert);
 testQuizSuite(assert);
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const vocabPath = path.resolve(__dirname, "../specs/vocabulary_list.md");
+
+assert.suite("Vocabulary List Grammar & Format Validation");
+assert.test("vocabulary_list.md should be grammatically and structurally correct", () => {
+  const errors = validateVocabularyFile(vocabPath);
+  if (errors.length > 0) {
+    throw new Error(`\n` + errors.join("\n"));
+  }
+});
 
 console.log("\n=== Test Execution Summary ===");
 console.log(`Total executed: ${totalTests} tests`);
