@@ -47,6 +47,9 @@
   <script type="module">
     import { testParserSuite } from "./parser.test.js";
     import { testQuizSuite } from "./quiz.test.js";
+    import { testVerbParserSuite } from "./verb_parser.test.js";
+    import { testVerbQuizSuite } from "./verb_quiz.test.js";
+    import { testStorageSuite } from "./storage.test.js";
 
     // Setup micro test framework
     const resultsContainer = document.getElementById("results");
@@ -99,6 +102,9 @@
     try {
       testParserSuite(assert);
       testQuizSuite(assert);
+      testVerbParserSuite(assert);
+      testVerbQuizSuite(assert);
+      testStorageSuite(assert);
       
       // Print summary
       const summary = document.createElement("div");

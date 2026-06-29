@@ -22,7 +22,7 @@
     <header>
       <div class="logo" style="display: flex; align-items: center; gap: 8px;">
         日本語<span>學習卡</span>
-        <span class="app-version-badge" id="app-version-label">v1.1.2</span>
+        <span class="app-version-badge" id="app-version-label">v1.2.0</span>
       </div>
       <div class="stats-summary">
         <div class="stat-badge" id="header-bookmark-badge">
@@ -34,6 +34,13 @@
       </div>
     </header>
 
+    <!-- Top Nav Switcher -->
+    <nav class="app-nav">
+      <button id="nav-btn-vocab" class="nav-btn active">單字學習</button>
+      <button id="nav-btn-verbs" class="nav-btn">動詞活用</button>
+      <button id="nav-btn-progress" class="nav-btn">學習進度</button>
+    </nav>
+
     <!-- SCREEN 1: Scope & Mode Selection Screen -->
     <main id="screen-setup" class="screen active">
       <h1>選擇練習範圍</h1>
@@ -41,22 +48,21 @@
 
       <!-- Range Selector Section -->
       <section class="card-section">
-        <div class="section-title">
-          <span>課別範圍</span>
+        <div class="section-title">範圍篩選</div>
+        
+        <div class="sub-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:6px;">
+          <div class="sub-section-title" style="font-size: 13px; color: var(--text-muted); font-weight: 600;">課別</div>
           <div class="toggle-actions">
             <button class="btn-small" id="btn-select-all">全選</button>
             <button class="btn-small" id="btn-select-none">清除</button>
           </div>
         </div>
         
-        <div class="lesson-grid" id="lesson-chips-container">
+        <div class="lesson-grid" id="lesson-chips-container" style="margin-bottom:16px;">
           <!-- Lessons generated dynamically by JS (第 13 課 to 第 25 課) -->
         </div>
-      </section>
 
-      <!-- Advanced Filter Scope (Bookmark & Mistake lists) -->
-      <section class="card-section">
-        <div class="section-title">特別篩選範圍</div>
+        <div class="sub-section-title" style="margin-top: 16px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); font-weight: 600;">特別篩選範圍</div>
         <div class="action-list">
           <div class="action-row" id="scope-row-bookmark">
             <div class="action-left bookmark">
@@ -241,6 +247,330 @@
 
       <button class="btn-primary btn-go-home" style="background:linear-gradient(135deg, var(--accent-purple), var(--accent-pink))">返回主頁 🏠</button>
     </section>
+
+    <!-- ==================== 動詞活用子系統 ==================== -->
+
+    <!-- SCREEN 5: Verb Setup Screen -->
+    <main id="screen-verbs-setup" class="screen">
+      <h1>選擇動詞活用範圍</h1>
+      <p class="description">請選擇您想要練習的動詞類型與學習模式。選擇書籤將僅複習標星動詞。</p>
+
+      <!-- Range Selector Section -->
+      <section class="card-section">
+        <div class="section-title">範圍篩選</div>
+        
+        <div class="sub-section-title" style="margin-top: 12px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); font-weight: 600;">動詞類別</div>
+        <div class="verb-class-grid" style="margin-bottom: 16px;">
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-class-1" checked>
+            <span>1類動詞</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-class-2" checked>
+            <span>2類動詞</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-class-3" checked>
+            <span>3類動詞</span>
+          </label>
+        </div>
+
+        <div class="sub-section-title" style="margin-top: 16px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); font-weight: 600;">特別篩選範圍</div>
+        <div class="action-list">
+          <div class="action-row" id="verb-scope-row-bookmark">
+            <div class="action-left bookmark">
+              <span>⭐</span>
+              <span>僅練習書籤收藏 (標星動詞)</span>
+            </div>
+            <div class="action-count" id="verb-scope-count-bookmark">0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Target Conjugations Selector Section -->
+      <section class="card-section" id="verb-targets-section">
+        <div class="section-title">測驗/學習變化目標 (可複選)</div>
+        <div class="verb-class-grid">
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-target-te" checked>
+            <span>て形</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-target-dict" checked>
+            <span>字典形</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-target-nai" checked>
+            <span>ない形</span>
+          </label>
+          <label class="chip-checkbox">
+            <input type="checkbox" id="verb-target-ta" checked>
+            <span>た形</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Verb Learning Modes Section -->
+      <section class="card-section">
+        <div class="section-title">學習與測驗模式</div>
+        <div class="mode-grid">
+          
+          <div class="mode-card selected" data-verb-mode="lookup">
+            <div class="mode-icon">📋</div>
+            <div class="mode-info">
+              <h3>動詞活用對照表</h3>
+              <p>完整查閱、搜尋 119 個動詞變化，提供各形式的 🔊 發音按鈕</p>
+            </div>
+          </div>
+
+          <div class="mode-card" data-verb-mode="study">
+            <div class="mode-icon">📖</div>
+            <div class="mode-info">
+              <h3>動詞活用卡片學習</h3>
+              <p>卡片 3D 翻轉，背誦並練習特定動詞的活用變化，適合預習</p>
+            </div>
+          </div>
+          
+          <div class="mode-card" data-verb-mode="quiz-mcq">
+            <div class="mode-icon">🎌</div>
+            <div class="mode-info">
+              <h3>動詞變化選擇題測驗</h3>
+              <p>看動詞原形與變化目標，從四個同類型選項中選出正確答案</p>
+            </div>
+          </div>
+          
+          <div class="mode-card" data-verb-mode="quiz-spelling">
+            <div class="mode-icon">✍️</div>
+            <div class="mode-info">
+              <h3>動詞變化手寫拼寫測驗</h3>
+              <p>手動輸入動詞活用的平假名拼寫，訓練大腦即時動詞轉換能力</p>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+      <button class="btn-primary" id="btn-verb-start-action">開始學習 ⮕</button>
+    </main>
+
+    <!-- SCREEN 6: Verb Lookup Screen -->
+    <section id="screen-verbs-lookup" class="screen">
+      <div class="panel-nav">
+        <button class="btn-back btn-go-verbs-home">⬅ 退出</button>
+        <span class="progress-text">動詞活用對照表</span>
+      </div>
+
+      <div class="search-container" style="margin-bottom:16px;">
+        <input type="text" id="verb-search-input" class="textbox" placeholder="搜尋動詞漢字、平假名或中文翻譯..." autocomplete="off">
+      </div>
+
+      <div class="table-container" style="flex:1; overflow-y:auto; overflow-x:auto; width:100%; border-radius:16px;">
+        <table class="verb-table" id="verb-lookup-table">
+          <thead>
+            <tr>
+              <th style="width: 45px; min-width: 45px; max-width: 45px;">⭐</th>
+              <th style="min-width: 100px;">ます形</th>
+              <th style="min-width: 120px;">て形</th>
+              <th style="min-width: 100px;">字典形</th>
+              <th style="min-width: 120px;">ない形</th>
+              <th style="min-width: 100px;">た形</th>
+              <th style="min-width: 120px;">中文</th>
+              <th style="min-width: 80px;">類別</th>
+            </tr>
+          </thead>
+          <tbody id="verb-lookup-tbody" lang="ja">
+            <!-- Dynamically populated table rows -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SCREEN 7: Verb Flashcard Screen -->
+    <section id="screen-verbs-study" class="screen">
+      <div class="panel-nav">
+        <button class="btn-back btn-go-verbs-home">⬅ 退出</button>
+        <span class="progress-text" id="verb-study-progress-indicator">0 / 0</span>
+      </div>
+
+      <div class="flashcard-scene">
+        <div class="flashcard" id="verb-flashcard-inner">
+          <button class="btn-bookmark" id="verb-study-star-btn">★</button>
+          
+          <!-- Card Front -->
+          <div class="card-face card-front">
+            <div class="vocab-lesson-tag" id="verb-study-class-front">1類動詞</div>
+            <div class="vocab-word" id="verb-study-word-front" lang="ja">--</div>
+            <div class="vocab-translation" id="verb-study-trans-front" style="font-size:16px; margin-top:8px; opacity:0.8;">--</div>
+            
+            <div class="conjugation-target-prompt" style="margin-top:20px; font-weight:800; font-size:24px; color:var(--accent-purple); display:flex; align-items:center; justify-content:center; gap:8px;">
+              <span>➡</span> <span id="verb-study-target-form-label">て形</span>
+            </div>
+            <div class="flip-hint" style="margin-top:20px;"><span>🔄</span> 點擊卡片翻面</div>
+          </div>
+          
+          <!-- Card Back -->
+          <div class="card-face card-back">
+            <div class="vocab-reading" id="verb-study-answer-back" lang="ja">--</div>
+            <div class="vocab-translation" id="verb-study-meaning-back">--</div>
+            <div class="pos-container" style="margin-bottom: 12px; font-size:14px; opacity:0.8;">
+              原形：<span id="verb-study-dict-back" lang="ja" style="font-weight:700;">--</span>
+            </div>
+            <button class="speaker-btn" id="verb-study-tts-btn">🔊</button>
+            <div class="flip-hint"><span>🔄</span> 點擊卡片翻面</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-controls">
+        <button class="btn-card-ctrl" id="btn-verb-study-prev">◀ 上一個</button>
+        <button class="btn-card-ctrl" id="btn-verb-study-next">下一個 ▶</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 8: Verb Quiz Screen -->
+    <section id="screen-verbs-quiz" class="screen">
+      <div class="panel-nav">
+        <button class="btn-back btn-go-verbs-home">⬅ 結束</button>
+        <span class="progress-text" id="verb-quiz-progress-indicator">0 / 0</span>
+      </div>
+
+      <div class="quiz-card" id="verb-quiz-card-display">
+        <button class="btn-bookmark" id="verb-quiz-star-btn">★</button>
+        <div class="quiz-prompt">
+          請變換為：<span id="verb-quiz-target-prompt" style="color:var(--accent-purple); font-weight:800;">--</span>
+        </div>
+        <div class="vocab-word" id="verb-quiz-question-word" lang="ja">--</div>
+        <div class="vocab-translation" id="verb-quiz-question-trans" style="font-size:16px; margin-top:8px; opacity:0.8;">--</div>
+        <button class="speaker-btn" id="verb-quiz-tts-btn" style="display:none">🔊</button>
+      </div>
+
+      <!-- MCQ options container -->
+      <div class="options-list" id="verb-quiz-choices-container" lang="ja">
+        <!-- Generates 4 option buttons dynamically -->
+      </div>
+
+      <!-- Spelling input container -->
+      <div class="input-section" id="verb-quiz-input-container" style="display:none">
+        <div class="textbox-container" id="verb-spelling-textbox-wrapper">
+          <input type="text" class="textbox" id="verb-spelling-input" placeholder="請輸入變化後的平假名..." autocomplete="off">
+        </div>
+        
+        <div class="card-controls">
+          <button class="btn-primary" id="btn-verb-spelling-submit" style="width:100%">送出檢查</button>
+        </div>
+      </div>
+
+      <!-- Quiz Feedback panel -->
+      <div class="quiz-feedback-box" id="verb-quiz-feedback-panel" style="display:none">
+        <div class="quiz-feedback-answer" id="verb-feedback-correct-reading" lang="ja">正確答案：--</div>
+        
+        <div class="table-container" style="width:100%; margin:16px 0; overflow-x:auto; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid var(--border-glass);">
+          <table class="verb-table mini" style="font-size:12px; text-align:center;">
+            <thead>
+              <tr>
+                <th>ます形</th>
+                <th>て形</th>
+                <th>字典形</th>
+                <th>ない形</th>
+                <th>た形</th>
+              </tr>
+            </thead>
+            <tbody lang="ja">
+              <tr>
+                <td id="verb-feed-masu">--</td>
+                <td id="verb-feed-te">--</td>
+                <td id="verb-feed-dict">--</td>
+                <td id="verb-feed-nai">--</td>
+                <td id="verb-feed-ta">--</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="vocab-translation" id="verb-feedback-meaning">翻譯：--</div>
+        <button class="btn-primary" id="btn-verb-quiz-next" style="width:100%;margin-top:16px">下一題 ⮕</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 9: Verb Summary Screen -->
+    <section id="screen-verbs-summary" class="screen">
+      <h1>測驗結算</h1>
+      <p class="description">以下是您本次動詞活用測驗的表現統計。您可以查看答錯的字詞並加入書籤。</p>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="description">答對率</div>
+          <div class="summary-val rate" id="verb-summary-accuracy">0%</div>
+        </div>
+        <div class="summary-card">
+          <div class="description">答對 / 總題數</div>
+          <div class="summary-val" id="verb-summary-score">0 / 0</div>
+        </div>
+      </div>
+
+      <section class="card-section" style="flex:1; display:flex; flex-direction:column">
+        <div class="section-title">本次測驗答錯的動詞</div>
+        <div class="mistake-list-container" id="verb-summary-mistakes-list">
+          <!-- Dynamically populated mistake items -->
+        </div>
+      </section>
+
+      <button class="btn-primary btn-go-verbs-home" style="background:linear-gradient(135deg, var(--accent-purple), var(--accent-pink))">返回動詞主頁 🏠</button>
+    </section>
+
+    <!-- SCREEN 10: Progress Dashboard Screen -->
+    <main id="screen-progress" class="screen">
+      <h1>學習進度儀表板</h1>
+      <p class="description">在此查看您的課別完成度、學習連續天數與最近 7 日學習強度統計。</p>
+
+      <!-- Streak & Summary Section -->
+      <div class="progress-streak-panel">
+        <div class="streak-badge">
+          <span class="streak-fire">🔥</span>
+          <div class="streak-info">
+            <div class="streak-count" id="progress-current-streak">0 天</div>
+            <div class="streak-label">連續學習天數</div>
+          </div>
+        </div>
+        <div class="streak-longest">
+          歷史最長連續：<span id="progress-longest-streak">0</span> 天
+        </div>
+      </div>
+
+      <div class="summary-grid progress-overall-grid">
+        <div class="summary-card">
+          <div class="description">累計看卡張數</div>
+          <div class="summary-val" id="progress-total-cards">0 張</div>
+        </div>
+        <div class="summary-card">
+          <div class="description">累計答題正確率</div>
+          <div class="summary-val rate" id="progress-overall-accuracy">0%</div>
+        </div>
+      </div>
+
+      <!-- Past 7 Days Chart -->
+      <section class="card-section">
+        <div class="section-title">最近 7 日學習強度</div>
+        <div class="progress-chart-container">
+          <div class="progress-chart" id="progress-chart-bars">
+            <!-- Dynamically rendered bars -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Lesson-wise Progress List -->
+      <section class="card-section" style="flex:1; display:flex; flex-direction:column">
+        <div class="section-title">課別單字完成進度</div>
+        <div class="lesson-progress-list" id="progress-lessons-container">
+          <!-- Dynamically populated lesson cards -->
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <div style="display:flex; gap:12px; margin-top:16px; margin-bottom: 24px;">
+        <button class="btn-secondary" id="btn-progress-reset" style="flex:1; border-color:var(--accent-red); color:var(--accent-red)">重設進度數據 🗑️</button>
+      </div>
+    </main>
 
   </div>
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "jp-study-cache-v1.1.2";
+const CACHE_NAME = "jp-study-cache-v1.2.0";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,10 +7,13 @@ const ASSETS = [
   "./manifest.json",
   "./icon.svg",
   "./specs/vocabulary_list.md",
+  "./specs/verb_conjugation_list.md",
   "./src/parser.js",
   "./src/storage.js",
   "./src/quiz.js",
-  "./src/ui.js"
+  "./src/ui.js",
+  "./src/verb_parser.js",
+  "./src/verb_quiz.js"
 ];
 
 // Install Event - cache all static assets

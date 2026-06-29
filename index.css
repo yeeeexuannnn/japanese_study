@@ -924,4 +924,410 @@ h1 {
   transform: scale(0.95);
 }
 
+/* ==========================================================================
+   Verb Conjugation Module (動詞活用) Styles
+   ========================================================================== */
+
+/* Top Navigation Bar Tabs */
+.app-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  padding: 4px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.nav-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nav-btn.active {
+  color: var(--accent-purple);
+  background: rgba(203, 166, 247, 0.1);
+  border: 1px solid rgba(203, 166, 247, 0.2);
+  box-shadow: 0 4px 15px rgba(203, 166, 247, 0.05);
+}
+
+/* Verb Class & Target Selector Grid */
+.verb-class-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chip-checkbox {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.chip-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.chip-checkbox span {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.chip-checkbox input[type="checkbox"]:checked + span {
+  background: rgba(203, 166, 247, 0.12);
+  color: var(--accent-purple);
+  border-color: var(--accent-purple);
+  box-shadow: 0 4px 12px rgba(203, 166, 247, 0.1);
+}
+
+/* Verb Conjugation Table */
+.verb-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.verb-table th, .verb-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-glass);
+  text-align: center;
+}
+
+.verb-table th {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.verb-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.verb-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.verb-table td {
+  white-space: nowrap;
+}
+
+.audio-cell-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.audio-cell-wrapper .btn-audio {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--accent-blue);
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.audio-cell-wrapper .btn-audio:hover {
+  background: rgba(137, 180, 250, 0.15);
+}
+
+.verb-table.mini th, .verb-table.mini td {
+  padding: 8px 10px;
+}
+
+/* Star Button inside table cell */
+.btn-star-verb {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.btn-star-verb:hover {
+  transform: scale(1.15);
+  color: var(--accent-yellow);
+}
+
+.btn-star-verb.active {
+  color: var(--accent-yellow);
+}
+
+/* Sticky columns for verb table */
+.verb-table th:nth-child(1),
+.verb-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: #121324;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.verb-table th:nth-child(2),
+.verb-table td:nth-child(2) {
+  position: sticky;
+  left: 45px;
+  z-index: 5;
+  background: #121324;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid var(--border-glass) !important;
+}
+
+.verb-table th:nth-child(1),
+.verb-table th:nth-child(2) {
+  z-index: 6;
+  background: #1a1b35;
+}
+
+/* ==================== PROGRESS DASHBOARD STYLES ==================== */
+
+.progress-streak-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  padding: 16px 20px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 32px var(--shadow-glass);
+  backdrop-filter: blur(10px);
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.streak-fire {
+  font-size: 32px;
+  animation: pulseFire 2s infinite ease-in-out;
+}
+
+@keyframes pulseFire {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px var(--accent-yellow)); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 10px var(--accent-red)); }
+}
+
+.streak-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.streak-count {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--accent-yellow);
+}
+
+.streak-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.streak-longest {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.streak-longest span {
+  color: var(--accent-pink);
+  font-weight: 700;
+}
+
+.progress-overall-grid {
+  margin-bottom: 20px;
+}
+
+/* Past 7 Days Chart */
+.progress-chart-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px var(--shadow-glass);
+  backdrop-filter: blur(10px);
+}
+
+.progress-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 140px;
+  padding-top: 10px;
+}
+
+.chart-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.chart-bar-container {
+  width: 12px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart-bar-fill {
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(to top, var(--accent-purple), var(--accent-pink));
+  transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 0;
+}
+
+.chart-label-val {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-purple);
+}
+
+.chart-label-date {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.chart-bar-wrapper.today .chart-label-date {
+  color: var(--accent-yellow);
+  font-weight: 700;
+}
+
+.chart-bar-wrapper.today .chart-bar-fill {
+  background: linear-gradient(to top, var(--accent-blue), var(--accent-purple));
+}
+
+/* Lesson Progress Card List */
+.lesson-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lesson-progress-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px var(--shadow-glass);
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.lesson-progress-card:hover {
+  transform: translateY(-2px);
+  background-color: var(--bg-surface-active);
+}
+
+.lesson-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.lesson-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.lesson-card-wrong-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-red);
+  background: rgba(243, 139, 168, 0.12);
+  border: 1px solid rgba(243, 139, 168, 0.3);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.lesson-card-progress-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.lesson-card-progress-row:last-child {
+  margin-bottom: 0;
+}
+
+.progress-row-label-container {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-sub);
+}
+
+.progress-row-val {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.progress-bar-fill.study {
+  background: var(--accent-blue);
+}
+
+.progress-bar-fill.quiz {
+  background: var(--accent-purple);
+}
+
+
+
 

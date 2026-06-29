@@ -34,7 +34,13 @@ export const UIController = {
     setup: document.getElementById("screen-setup"),
     study: document.getElementById("screen-study"),
     quiz: document.getElementById("screen-quiz"),
-    summary: document.getElementById("screen-summary")
+    summary: document.getElementById("screen-summary"),
+    verbsSetup: document.getElementById("screen-verbs-setup"),
+    verbsLookup: document.getElementById("screen-verbs-lookup"),
+    verbsStudy: document.getElementById("screen-verbs-study"),
+    verbsQuiz: document.getElementById("screen-verbs-quiz"),
+    verbsSummary: document.getElementById("screen-verbs-summary"),
+    progress: document.getElementById("screen-progress")
   },
 
   // State caches
@@ -51,6 +57,8 @@ export const UIController = {
     this.bindSetupEvents();
     this.bindStudyEvents();
     this.bindQuizEvents();
+    this.bindVerbsSetupEvents();
+    this.bindProgressEvents();
   },
 
   registerCallbacks(cbs) {
@@ -65,6 +73,15 @@ export const UIController = {
         this.screens[key].classList.remove("active");
       }
     });
+
+    const nav = document.querySelector(".app-nav");
+    if (nav) {
+      if (screenId === "setup" || screenId === "verbsSetup" || screenId === "progress") {
+        nav.style.display = "flex";
+      } else {
+        nav.style.display = "none";
+      }
+    }
   },
 
   // --- Header Stats Display ---
@@ -157,6 +174,7 @@ export const UIController = {
         });
       }
     });
+    this.syncLessonSelectionState();
   },
 
   clearLessonSelections() {
@@ -181,6 +199,254 @@ export const UIController = {
     // Enable/disable start button based on selection count
     const hasSelection = this.selectedLessons.length > 0 || this.bookmarkOnly || this.wrongOnly;
     document.getElementById("btn-start-action").disabled = !hasSelection;
+  },
+
+  syncVerbSelectionState() {
+    if (this.selectedVerbMode === "lookup") {
+      document.getElementById("btn-verb-start-action").disabled = false;
+      return;
+    }
+
+    const hasClassChecked = document.getElementById("verb-class-1").checked ||
+                           document.getElementById("verb-class-2").checked ||
+                           document.getElementById("verb-class-3").checked;
+    const hasScope = hasClassChecked || this.verbBookmarkOnly;
+
+    const hasTargetChecked = document.getElementById("verb-target-te").checked ||
+                            document.getElementById("verb-target-dict").checked ||
+                            document.getElementById("verb-target-nai").checked ||
+                            document.getElementById("verb-target-ta").checked;
+
+    document.getElementById("btn-verb-start-action").disabled = !(hasScope && hasTargetChecked);
+  },
+
+  bindVerbsSetupEvents() {
+    // Bookmark filter row in Verbs Setup
+    const verbBookmarkRow = document.getElementById("verb-scope-row-bookmark");
+    this.verbBookmarkOnly = false;
+    
+    const class1 = document.getElementById("verb-class-1");
+    const class2 = document.getElementById("verb-class-2");
+    const class3 = document.getElementById("verb-class-3");
+
+    const targetTe = document.getElementById("verb-target-te");
+    const targetDict = document.getElementById("verb-target-dict");
+    const targetNai = document.getElementById("verb-target-nai");
+    const targetTa = document.getElementById("verb-target-ta");
+
+    const ensureNotLookupMode = () => {
+      if (this.selectedVerbMode === "lookup") {
+        this.selectedVerbMode = "study";
+        document.querySelectorAll("[data-verb-mode]").forEach(c => {
+          c.classList.toggle("selected", c.dataset.verbMode === "study");
+        });
+      }
+    };
+
+    verbBookmarkRow.addEventListener("click", () => {
+      ensureNotLookupMode();
+      this.verbBookmarkOnly = !this.verbBookmarkOnly;
+      verbBookmarkRow.classList.toggle("selected", this.verbBookmarkOnly);
+      if (this.verbBookmarkOnly) {
+        class1.checked = false;
+        class2.checked = false;
+        class3.checked = false;
+      }
+      this.syncVerbSelectionState();
+    });
+
+    const handleClassChange = () => {
+      ensureNotLookupMode();
+      if (class1.checked || class2.checked || class3.checked) {
+        this.verbBookmarkOnly = false;
+        verbBookmarkRow.classList.remove("selected");
+      }
+      this.syncVerbSelectionState();
+    };
+
+    class1.addEventListener("change", handleClassChange);
+    class2.addEventListener("change", handleClassChange);
+    class3.addEventListener("change", handleClassChange);
+
+    const handleTargetChange = () => {
+      ensureNotLookupMode();
+      this.syncVerbSelectionState();
+    };
+
+    targetTe.addEventListener("change", handleTargetChange);
+    targetDict.addEventListener("change", handleTargetChange);
+    targetNai.addEventListener("change", handleTargetChange);
+    targetTa.addEventListener("change", handleTargetChange);
+
+    // Mode Selector Cards in Verbs Setup
+    this.selectedVerbMode = "lookup";
+    document.querySelectorAll("[data-verb-mode]").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll("[data-verb-mode]").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        this.selectedVerbMode = card.dataset.verbMode;
+
+        if (this.selectedVerbMode === "lookup") {
+          // Clear selections above
+          class1.checked = false;
+          class2.checked = false;
+          class3.checked = false;
+          this.verbBookmarkOnly = false;
+          verbBookmarkRow.classList.remove("selected");
+
+          targetTe.checked = false;
+          targetDict.checked = false;
+          targetNai.checked = false;
+          targetTa.checked = false;
+        } else {
+          // Restore defaults if all were empty when switching back to study/quiz
+          const hasClassChecked = class1.checked || class2.checked || class3.checked;
+          if (!hasClassChecked && !this.verbBookmarkOnly) {
+            class1.checked = true;
+            class2.checked = true;
+            class3.checked = true;
+          }
+          const hasTargetChecked = targetTe.checked || targetDict.checked || targetNai.checked || targetTa.checked;
+          if (!hasTargetChecked) {
+            targetTe.checked = true;
+            targetDict.checked = true;
+            targetNai.checked = true;
+            targetTa.checked = true;
+          }
+        }
+        this.syncVerbSelectionState();
+      });
+    });
+
+    // Clear initially because lookup is selected by default
+    class1.checked = false;
+    class2.checked = false;
+    class3.checked = false;
+    this.verbBookmarkOnly = false;
+    verbBookmarkRow.classList.remove("selected");
+
+    targetTe.checked = false;
+    targetDict.checked = false;
+    targetNai.checked = false;
+    targetTa.checked = false;
+
+    this.syncVerbSelectionState();
+
+    // Start Button in Verbs Setup
+    document.getElementById("btn-verb-start-action").addEventListener("click", () => {
+      if (this.callbacks.onStartVerbs) {
+        // Collect checked verb classes
+        const classes = [];
+        if (document.getElementById("verb-class-1").checked) classes.push("1類動詞");
+        if (document.getElementById("verb-class-2").checked) classes.push("2類動詞");
+        if (document.getElementById("verb-class-3").checked) classes.push("3類動詞");
+
+        // Collect checked target forms
+        const targets = [];
+        if (document.getElementById("verb-target-te").checked) targets.push("teForm");
+        if (document.getElementById("verb-target-dict").checked) targets.push("dictForm");
+        if (document.getElementById("verb-target-nai").checked) targets.push("naiForm");
+        if (document.getElementById("verb-target-ta").checked) targets.push("taForm");
+
+        this.callbacks.onStartVerbs({
+          selectedClasses: classes,
+          bookmarkOnly: this.verbBookmarkOnly,
+          targets: targets,
+          mode: this.selectedVerbMode
+        });
+      }
+    });
+
+    // Back to Verbs Setup Screen from other verb sub-modes
+    document.querySelectorAll(".btn-go-verbs-home").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (this.callbacks.onGoVerbsHome) {
+          this.callbacks.onGoVerbsHome();
+        }
+      });
+    });
+
+    // Search bar event for lookup
+    const searchInput = document.getElementById("verb-search-input");
+    searchInput.addEventListener("input", () => {
+      if (this.callbacks.onVerbSearch) {
+        this.callbacks.onVerbSearch(searchInput.value);
+      }
+    });
+
+    // Flashcard interaction: Flip
+    const flashcardScene = document.querySelector("#screen-verbs-study .flashcard-scene");
+    if (flashcardScene) {
+      flashcardScene.addEventListener("click", (e) => {
+        if (e.target.closest("#verb-study-star-btn")) return;
+        document.getElementById("verb-flashcard-inner").classList.toggle("flipped");
+      });
+    }
+
+    // Bookmark toggle in Study Mode
+    document.getElementById("verb-study-star-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (this.callbacks.onVerbBookmarkToggle) {
+        this.callbacks.onVerbBookmarkToggle("study");
+      }
+    });
+
+    // Prev/Next in Study Mode
+    document.getElementById("btn-verb-study-prev").addEventListener("click", () => {
+      if (this.callbacks.onPrevVerbCard) {
+        this.callbacks.onPrevVerbCard();
+      }
+    });
+    document.getElementById("btn-verb-study-next").addEventListener("click", () => {
+      if (this.callbacks.onNextVerbCard) {
+        this.callbacks.onNextVerbCard();
+      }
+    });
+
+    // Bookmark toggle in Quiz Mode
+    document.getElementById("verb-quiz-star-btn").addEventListener("click", () => {
+      if (this.callbacks.onVerbBookmarkToggle) {
+        this.callbacks.onVerbBookmarkToggle("quiz");
+      }
+    });
+
+    // Spelling Submit in Quiz Mode
+    document.getElementById("btn-verb-spelling-submit").addEventListener("click", () => {
+      const typed = document.getElementById("verb-spelling-input").value;
+      if (this.callbacks.onVerbSpellingSubmit) {
+        this.callbacks.onVerbSpellingSubmit(typed);
+      }
+    });
+
+    // Support pressing Enter in spelling input box
+    document.getElementById("verb-spelling-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const typed = document.getElementById("verb-spelling-input").value;
+        if (this.callbacks.onVerbSpellingSubmit) {
+          this.callbacks.onVerbSpellingSubmit(typed);
+        }
+      }
+    });
+
+    // Next Question in Quiz Mode
+    document.getElementById("btn-verb-quiz-next").addEventListener("click", () => {
+      if (this.callbacks.onNextVerbQuestion) {
+        this.callbacks.onNextVerbQuestion();
+      }
+    });
+
+    // TTS speaker buttons
+    document.getElementById("verb-study-tts-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (this.callbacks.onVerbTTSPlay) {
+        this.callbacks.onVerbTTSPlay("study");
+      }
+    });
+    document.getElementById("verb-quiz-tts-btn").addEventListener("click", (e) => {
+      if (this.callbacks.onVerbTTSPlay) {
+        this.callbacks.onVerbTTSPlay("quiz");
+      }
+    });
   },
 
   // --- Flashcard Study Screen Logic ---
@@ -520,5 +786,380 @@ export const UIController = {
       row.appendChild(starBtn);
       container.appendChild(row);
     });
+  },
+
+  // --- Verb Conjugation Module UI ---
+
+  renderVerbsSetup(bookmarkedVerbsCount) {
+    document.getElementById("verb-scope-count-bookmark").textContent = bookmarkedVerbsCount;
+  },
+
+  renderVerbsLookup(verbs, bookmarkedIds, onStarToggleCallback, onPlayAudioCallback) {
+    const tbody = document.getElementById("verb-lookup-tbody");
+    tbody.innerHTML = "";
+
+    if (verbs.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px 0;color:var(--text-muted);">無符合篩選條件的動詞。</td></tr>`;
+      return;
+    }
+
+    verbs.forEach(item => {
+      const tr = document.createElement("tr");
+      const isStarred = bookmarkedIds.includes(item.id);
+
+      // Star cell
+      const tdStar = document.createElement("td");
+      const starBtn = document.createElement("button");
+      starBtn.className = `btn-star-verb ${isStarred ? "active" : ""}`;
+      starBtn.textContent = "★";
+      starBtn.addEventListener("click", () => {
+        const active = onStarToggleCallback(item.id);
+        starBtn.classList.toggle("active", active);
+      });
+      tdStar.appendChild(starBtn);
+      tr.appendChild(tdStar);
+
+      // Helper function to build cells with TTS audio button
+      const createAudioCell = (text) => {
+        const td = document.createElement("td");
+        
+        const wrapper = document.createElement("div");
+        wrapper.className = "audio-cell-wrapper";
+        
+        const span = document.createElement("span");
+        span.textContent = text;
+        wrapper.appendChild(span);
+
+        const playBtn = document.createElement("button");
+        playBtn.className = "btn-audio";
+        playBtn.textContent = "🔊";
+        playBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          onPlayAudioCallback(text);
+        });
+        wrapper.appendChild(playBtn);
+        
+        td.appendChild(wrapper);
+        return td;
+      };
+
+      tr.appendChild(createAudioCell(item.masuForm));
+      tr.appendChild(createAudioCell(item.teForm));
+      tr.appendChild(createAudioCell(item.dictForm));
+      tr.appendChild(createAudioCell(item.naiForm));
+      tr.appendChild(createAudioCell(item.taForm));
+
+      // Translation cell
+      const tdTrans = document.createElement("td");
+      tdTrans.textContent = item.translation;
+      tr.appendChild(tdTrans);
+
+      // Class cell
+      const tdClass = document.createElement("td");
+      const badge = document.createElement("span");
+      badge.className = `vocab-pos-badge ${getPosClass(item.verbClass)}`;
+      badge.style.fontSize = "11px";
+      badge.style.padding = "2px 8px";
+      badge.textContent = item.verbClass;
+      tdClass.appendChild(badge);
+      tr.appendChild(tdClass);
+
+      tbody.appendChild(tr);
+    });
+  },
+
+  renderVerbsFlashcard(item, targetForm, targetFormText, index, total, isBookmarked) {
+    document.getElementById("verb-flashcard-inner").classList.remove("flipped");
+
+    document.getElementById("verb-study-class-front").textContent = item.verbClass;
+    document.getElementById("verb-study-class-front").className = `vocab-lesson-tag vocab-pos-badge ${getPosClass(item.verbClass)}`;
+    document.getElementById("verb-study-word-front").textContent = item.masuForm;
+    document.getElementById("verb-study-trans-front").textContent = item.translation;
+    document.getElementById("verb-study-target-form-label").textContent = targetFormText;
+
+    document.getElementById("verb-study-answer-back").textContent = item[targetForm];
+    document.getElementById("verb-study-meaning-back").textContent = item.translation;
+    document.getElementById("verb-study-dict-back").textContent = item.dictForm;
+
+    // Star button
+    const starBtn = document.getElementById("verb-study-star-btn");
+    starBtn.classList.toggle("active", isBookmarked);
+
+    // Progress
+    document.getElementById("verb-study-progress-indicator").textContent = `${index + 1} / ${total}`;
+  },
+
+  renderVerbsQuiz(item, targetForm, targetFormText, index, total, isBookmarked, mode) {
+    const cardEl = document.getElementById("verb-quiz-card-display");
+    cardEl.className = "quiz-card";
+
+    document.getElementById("verb-quiz-star-btn").classList.toggle("active", isBookmarked);
+    document.getElementById("verb-quiz-progress-indicator").textContent = `${index + 1} / ${total}`;
+    
+    document.getElementById("verb-quiz-target-prompt").textContent = targetFormText;
+    document.getElementById("verb-quiz-question-word").textContent = item.masuForm;
+    document.getElementById("verb-quiz-question-trans").textContent = item.translation;
+
+    document.getElementById("verb-quiz-feedback-panel").style.display = "none";
+    document.getElementById("verb-quiz-tts-btn").style.display = "none";
+
+    document.getElementById("verb-spelling-input").value = "";
+    document.getElementById("verb-spelling-textbox-wrapper").className = "textbox-container";
+
+    if (mode === "quiz-mcq") {
+      document.getElementById("verb-quiz-choices-container").style.display = "flex";
+      document.getElementById("verb-quiz-input-container").style.display = "none";
+    } else {
+      document.getElementById("verb-quiz-choices-container").style.display = "none";
+      document.getElementById("verb-quiz-input-container").style.display = "flex";
+      document.getElementById("verb-spelling-input").disabled = false;
+      document.getElementById("verb-spelling-input").focus();
+    }
+  },
+
+  renderVerbsMCQChoices(choices, correctText, onSelectCallback) {
+    const container = document.getElementById("verb-quiz-choices-container");
+    container.innerHTML = "";
+
+    choices.forEach(text => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = text;
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#verb-quiz-choices-container .option-btn").forEach(b => b.disabled = true);
+        const isCorrect = (text === correctText);
+        btn.classList.add(isCorrect ? "correct" : "wrong");
+
+        if (!isCorrect) {
+          document.querySelectorAll("#verb-quiz-choices-container .option-btn").forEach(b => {
+            if (b.textContent === correctText) {
+              b.classList.add("correct");
+            }
+          });
+        }
+        onSelectCallback(isCorrect, text);
+      });
+      container.appendChild(btn);
+    });
+  },
+
+  showVerbsQuizFeedback(item, correctConjugation, isCorrect) {
+    const cardEl = document.getElementById("verb-quiz-card-display");
+    cardEl.className = `quiz-card ${isCorrect ? "correct" : "wrong"}`;
+
+    const ttsBtn = document.getElementById("verb-quiz-tts-btn");
+    ttsBtn.style.display = "inline-block";
+    if (isCorrect) {
+      speakJapanese(correctConjugation);
+    }
+
+    document.getElementById("verb-feedback-correct-reading").textContent = `正確答案：${correctConjugation}`;
+    document.getElementById("verb-feedback-meaning").textContent = `翻譯：${item.translation}`;
+
+    // Populate lookup grid
+    document.getElementById("verb-feed-masu").textContent = item.masuForm;
+    document.getElementById("verb-feed-te").textContent = item.teForm;
+    document.getElementById("verb-feed-dict").textContent = item.dictForm;
+    document.getElementById("verb-feed-nai").textContent = item.naiForm;
+    document.getElementById("verb-feed-ta").textContent = item.taForm;
+
+    document.getElementById("verb-quiz-feedback-panel").style.display = "flex";
+
+    const textInput = document.getElementById("verb-spelling-input");
+    if (textInput) {
+      textInput.disabled = true;
+      document.getElementById("verb-spelling-textbox-wrapper").className = `textbox-container ${isCorrect ? "correct" : "wrong"}`;
+    }
+  },
+
+  renderVerbsSummary(sessionStats, onStarToggleCallback) {
+    document.getElementById("verb-summary-accuracy").textContent = `${sessionStats.accuracy}%`;
+    document.getElementById("verb-summary-score").textContent = `${sessionStats.correct} / ${sessionStats.total}`;
+
+    const container = document.getElementById("verb-summary-mistakes-list");
+    container.innerHTML = "";
+
+    if (sessionStats.mistakes.length === 0) {
+      container.innerHTML = `<div class="description" style="text-align:center;padding:20px 0;">🎉 太厲害了！本次測驗全對，無答錯動詞。</div>`;
+      return;
+    }
+
+    sessionStats.mistakes.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "mistake-item";
+      row.setAttribute("lang", "ja");
+
+      const left = document.createElement("div");
+      left.className = "mistake-item-left";
+
+      const wordRow = document.createElement("div");
+      wordRow.className = "mistake-item-left-row";
+      wordRow.innerHTML = `<h4>${item.masuForm}</h4>`;
+      
+      const badge = document.createElement("span");
+      badge.className = `vocab-pos-badge ${getPosClass(item.verbClass)}`;
+      badge.style.fontSize = "10px";
+      badge.style.padding = "2px 8px";
+      badge.textContent = item.verbClass;
+      wordRow.appendChild(badge);
+      left.appendChild(wordRow);
+
+      const details = document.createElement("p");
+      details.textContent = `${item.translation} • て: ${item.teForm} • 字典: ${item.dictForm}`;
+      left.appendChild(details);
+
+      const starBtn = document.createElement("button");
+      starBtn.className = `btn-star-item ${item.isBookmarked ? "active" : ""}`;
+      starBtn.textContent = "★";
+      starBtn.addEventListener("click", () => {
+        const active = onStarToggleCallback(item.id);
+        starBtn.classList.toggle("active", active);
+      });
+
+      row.appendChild(left);
+      row.appendChild(starBtn);
+      container.appendChild(row);
+    });
+  },
+
+  bindProgressEvents() {
+    document.getElementById("btn-progress-reset").addEventListener("click", () => {
+      if (confirm("您確定要重設所有學習進度與連續登入數據嗎？此動作將無法復原。")) {
+        if (this.callbacks.onProgressReset) {
+          this.callbacks.onProgressReset();
+        }
+      }
+    });
+  },
+
+  renderProgressDashboard(allWords, studiedIds, correctIds, wrongIds, logs, streak) {
+    // 1. Update Streak info
+    document.getElementById("progress-current-streak").textContent = `${streak.currentStreak || 0} 天`;
+    document.getElementById("progress-longest-streak").textContent = streak.longestStreak || 0;
+
+    // 2. Update Overall Stats
+    const totalStudied = studiedIds.length;
+    document.getElementById("progress-total-cards").textContent = `${totalStudied} 張`;
+
+    let overallAccuracy = 0;
+    if (logs && logs.length > 0) {
+      let totalQuiz = 0;
+      let totalCorrect = 0;
+      logs.forEach(log => {
+        totalQuiz += (log.vocabQuizTotal || 0) + (log.verbQuizTotal || 0);
+        totalCorrect += (log.vocabQuizCorrect || 0) + (log.verbQuizCorrect || 0);
+      });
+      if (totalQuiz > 0) {
+        overallAccuracy = Math.round((totalCorrect / totalQuiz) * 100);
+      }
+    }
+    document.getElementById("progress-overall-accuracy").textContent = `${overallAccuracy}%`;
+
+    // 3. Render 7-day bar chart
+    const chartBarsContainer = document.getElementById("progress-chart-bars");
+    chartBarsContainer.innerHTML = "";
+
+    const dates = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dates.push(`${year}-${month}-${day}`);
+    }
+
+    const activityScores = dates.map(dateStr => {
+      const log = logs.find(l => l.date === dateStr);
+      if (!log) return 0;
+      return (log.vocabStudyCount || 0) + (log.vocabQuizTotal || 0) + (log.verbStudyCount || 0) + (log.verbQuizTotal || 0);
+    });
+
+    const maxScore = Math.max(...activityScores, 1);
+
+    dates.forEach((dateStr, idx) => {
+      const score = activityScores[idx];
+      const percent = Math.min(100, Math.round((score / maxScore) * 100));
+
+      const wrapper = document.createElement("div");
+      const isToday = idx === 6;
+      wrapper.className = `chart-bar-wrapper ${isToday ? "today" : ""}`;
+
+      const shortDateLabel = dateStr.substring(8); // "DD"
+
+      wrapper.innerHTML = `
+        <span class="chart-label-val">${score}</span>
+        <div class="chart-bar-container">
+          <div class="chart-bar-fill" style="height: ${percent}%"></div>
+        </div>
+        <span class="chart-label-date">${isToday ? "今天" : shortDateLabel}</span>
+      `;
+      chartBarsContainer.appendChild(wrapper);
+    });
+
+    // 4. Render Lesson Progress List
+    const lessonsContainer = document.getElementById("progress-lessons-container");
+    lessonsContainer.innerHTML = "";
+
+    const lessonsMap = {};
+    allWords.forEach(word => {
+      if (!lessonsMap[word.lesson]) {
+        lessonsMap[word.lesson] = [];
+      }
+      lessonsMap[word.lesson].push(word);
+    });
+
+    const sortedLessons = Object.keys(lessonsMap).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, "")) || 0;
+      const numB = parseInt(b.replace(/\D/g, "")) || 0;
+      return numA - numB;
+    });
+
+    sortedLessons.forEach(lessonName => {
+      const words = lessonsMap[lessonName];
+      const totalWords = words.length;
+
+      const studiedInLesson = words.filter(w => studiedIds.includes(w.id)).length;
+      const studyRate = totalWords > 0 ? Math.round((studiedInLesson / totalWords) * 100) : 0;
+
+      const correctInLesson = words.filter(w => correctIds.includes(w.id)).length;
+      const quizRate = totalWords > 0 ? Math.round((correctInLesson / totalWords) * 100) : 0;
+
+      const mistakesInLesson = words.filter(w => wrongIds.includes(w.id)).length;
+
+      const card = document.createElement("div");
+      card.className = "lesson-progress-card";
+      
+      let headerHTML = `<div class="lesson-card-title">${lessonName}</div>`;
+      if (mistakesInLesson > 0) {
+        headerHTML += `<span class="lesson-card-wrong-badge">⚠️ ${mistakesInLesson} 錯題</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="lesson-card-header">
+          ${headerHTML}
+        </div>
+        <div class="lesson-card-progress-row">
+          <div class="progress-row-label-container">
+            <span>字卡瀏覽進度</span>
+            <span class="progress-row-val">${studiedInLesson}/${totalWords} (${studyRate}%)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill study" style="width: ${studyRate}%"></div>
+          </div>
+        </div>
+        <div class="lesson-card-progress-row">
+          <div class="progress-row-label-container">
+            <span>測驗掌握進度</span>
+            <span class="progress-row-val">${correctInLesson}/${totalWords} (${quizRate}%)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill quiz" style="width: ${quizRate}%"></div>
+          </div>
+        </div>
+      `;
+      lessonsContainer.appendChild(card);
+    });
   }
 };
+
