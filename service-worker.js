@@ -1,4 +1,4 @@
-const CACHE_NAME = "jp-study-cache-v1.2.0";
+const CACHE_NAME = "jp-study-cache-v1.2.1";
 const ASSETS = [
   "./",
   "./index.html",
